@@ -64,10 +64,7 @@ void Scanner::ScanDocStart() {
   m_simpleKeyAllowed = false;
   m_canBeJSONFlow = false;
 
-  // eat
-  Mark mark = INPUT.mark();
-  INPUT.eat(3);
-  m_tokens.push(Token(Token::DOC_START, mark));
+  InsertToken(Token::DOC_START, 3);
 }
 
 // DocEnd
@@ -77,10 +74,7 @@ void Scanner::ScanDocEnd() {
   m_simpleKeyAllowed = false;
   m_canBeJSONFlow = false;
 
-  // eat
-  Mark mark = INPUT.mark();
-  INPUT.eat(3);
-  m_tokens.push(Token(Token::DOC_END, mark));
+  InsertToken(Token::DOC_END, 3);
 }
 
 // FlowStart
@@ -143,10 +137,7 @@ void Scanner::ScanFlowEntry() {
   m_simpleKeyAllowed = true;
   m_canBeJSONFlow = false;
 
-  // eat
-  Mark mark = INPUT.mark();
-  INPUT.eat(1);
-  m_tokens.push(Token(Token::FLOW_ENTRY, mark));
+  InsertToken(Token::FLOW_ENTRY);
 }
 
 // BlockEntry
@@ -163,10 +154,7 @@ void Scanner::ScanBlockEntry() {
   m_simpleKeyAllowed = true;
   m_canBeJSONFlow = false;
 
-  // eat
-  Mark mark = INPUT.mark();
-  INPUT.eat(1);
-  m_tokens.push(Token(Token::BLOCK_ENTRY, mark));
+  InsertToken(Token::BLOCK_ENTRY);
 }
 
 // Key
@@ -182,10 +170,7 @@ void Scanner::ScanKey() {
   // can only put a simple key here if we're in block context
   m_simpleKeyAllowed = InBlockContext();
 
-  // eat
-  Mark mark = INPUT.mark();
-  INPUT.eat(1);
-  m_tokens.push(Token(Token::KEY, mark));
+  InsertToken(Token::KEY);
 }
 
 // Value
@@ -211,10 +196,7 @@ void Scanner::ScanValue() {
     m_simpleKeyAllowed = InBlockContext();
   }
 
-  // eat
-  Mark mark = INPUT.mark();
-  INPUT.eat(1);
-  m_tokens.push(Token(Token::VALUE, mark));
+  InsertToken(Token::VALUE);
 }
 
 // AnchorOrAlias
@@ -433,5 +415,12 @@ void Scanner::ScanBlockScalar() {
   Token token(Token::NON_PLAIN_SCALAR, mark);
   token.value = scalar;
   m_tokens.push(token);
+}
+
+void Scanner::InsertToken(Token::TYPE t, int numChars) {
+    // eat characters
+    Mark mark = INPUT.mark();
+    INPUT.eat(numChars);
+    m_tokens.push(Token(t, mark));
 }
 }  // namespace YAML

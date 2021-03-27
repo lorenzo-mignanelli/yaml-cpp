@@ -305,14 +305,10 @@ bool Stream::_ReadAheadTo(size_t i) const {
         StreamInUtf8();
         break;
       case utf16le:
-        StreamInUtf16();
-        break;
       case utf16be:
         StreamInUtf16();
         break;
       case utf32le:
-        StreamInUtf32();
-        break;
       case utf32be:
         StreamInUtf32();
         break;

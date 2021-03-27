@@ -39,10 +39,10 @@ Token& Scanner::peek() {
                               // if it's empty before peeking.
 
 #if 0
-		static Token *pLast = 0;
-		if(pLast != &m_tokens.front())
-			std::cerr << "peek: " << m_tokens.front() << "\n";
-		pLast = &m_tokens.front();
+        static Token *pLast = 0;
+        if(pLast != &m_tokens.front())
+            std::cerr << "peek: " << m_tokens.front() << "\n";
+        pLast = &m_tokens.front();
 #endif
 
   return m_tokens.front();
@@ -103,30 +103,33 @@ void Scanner::ScanNextToken() {
     return EndStream();
   }
 
-  if (INPUT.column() == 0 && INPUT.peek() == Keys::Directive) {
-    return ScanDirective();
-  }
+  char key = INPUT.peek();
 
-  // document token
-  if (INPUT.column() == 0 && Exp::DocStart().Matches(INPUT)) {
-    return ScanDocStart();
-  }
+  if (INPUT.column() == 0) {
+      if (key == Keys::Directive) {
+          return ScanDirective();
+      }
 
-  if (INPUT.column() == 0 && Exp::DocEnd().Matches(INPUT)) {
-    return ScanDocEnd();
+      // document token
+      if (Exp::DocStart().Matches(INPUT)) {
+          return ScanDocStart();
+      }
+
+      if (Exp::DocEnd().Matches(INPUT)) {
+          return ScanDocEnd();
+      }
   }
 
   // flow start/end/entry
-  if (INPUT.peek() == Keys::FlowSeqStart ||
-      INPUT.peek() == Keys::FlowMapStart) {
+  if (key == Keys::FlowSeqStart || key == Keys::FlowMapStart) {
     return ScanFlowStart();
   }
 
-  if (INPUT.peek() == Keys::FlowSeqEnd || INPUT.peek() == Keys::FlowMapEnd) {
+  if (key == Keys::FlowSeqEnd || key == Keys::FlowMapEnd) {
     return ScanFlowEnd();
   }
 
-  if (INPUT.peek() == Keys::FlowEntry) {
+  if (key == Keys::FlowEntry) {
     return ScanFlowEntry();
   }
 
@@ -144,22 +147,22 @@ void Scanner::ScanNextToken() {
   }
 
   // alias/anchor
-  if (INPUT.peek() == Keys::Alias || INPUT.peek() == Keys::Anchor) {
+  if (key == Keys::Alias || key == Keys::Anchor) {
     return ScanAnchorOrAlias();
   }
 
   // tag
-  if (INPUT.peek() == Keys::Tag) {
+  if (key == Keys::Tag) {
     return ScanTag();
   }
 
   // special scalars
-  if (InBlockContext() && (INPUT.peek() == Keys::LiteralScalar ||
-                           INPUT.peek() == Keys::FoldedScalar)) {
+  if (InBlockContext() && (key == Keys::LiteralScalar ||
+                           key == Keys::FoldedScalar)) {
     return ScanBlockScalar();
   }
 
-  if (INPUT.peek() == '\'' || INPUT.peek() == '\"') {
+  if (key == '\'' || key == '\"') {
     return ScanQuotedScalar();
   }
 
@@ -223,15 +226,7 @@ void Scanner::ScanToNextToken() {
 //   that they can't contribute to indentation, so once you've seen a tab in a
 //   line, you can't start a simple key
 bool Scanner::IsWhitespaceToBeEaten(char ch) {
-  if (ch == ' ') {
-    return true;
-  }
-
-  if (ch == '\t') {
-    return true;
-  }
-
-  return false;
+  return (ch == ' ' || ch == '\t');
 }
 
 const RegEx& Scanner::GetValueRegex() const {

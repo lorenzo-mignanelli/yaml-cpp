@@ -169,6 +169,8 @@ class Scanner {
   void ScanQuotedScalar();
   void ScanBlockScalar();
 
+  void InsertToken(Token::TYPE t, int numChars=1);
+
  private:
   // the stream
   Stream INPUT;
